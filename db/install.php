@@ -14,23 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * This script handles global settings for this Help Desk block.
- *
- * @package     block_helpdesk
- * @copyright   2010 VLACS
- * @author      Joanthan Doane <jdoane@vlacs.org>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 defined('MOODLE_INTERNAL') or die("Direct access to this location is not allowed.");
-
-global $CFG;
 require_once("$CFG->dirroot/blocks/helpdesk/lib.php");
 
-$hd = helpdesk::get_helpdesk();
-
-if (method_exists($hd, 'plugin_settings')) {
-    $hd->plugin_settings($settings);
+/**
+ * This function gets called after the block's tables are created.
+ *
+ * @return bool
+ */
+function xmldb_block_helpdesk_install() {
+    $hd = helpdesk::get_helpdesk();
+    $rval = $hd->install();
+    return $rval;
 }
-?>

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is the answerer assignmennt script. Handles all direct assignment
+ * This is the answerer assignmennt script. Handles all direct assignment 
  * operations.
  *
  * @package     block_helpdesk
@@ -26,11 +26,13 @@
 
 // We are moodle, so we shall become moodle.
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once($CFG->libdir . '/moodlelib.php');
+require_once($CFG->libdir . '/weblib.php');
 
 // We are also Helpdesk, so we shall also become a helpdesk.
 require_once("$CFG->dirroot/blocks/helpdesk/lib.php");
 
-require_login(null, false);
+require_login(0, false);
 
 // Grab optional params.
 $tid    = required_param('tid', PARAM_INT);
@@ -43,7 +45,7 @@ $page   = ($page == null ? 0 : $page);
 
 $context = get_context_instance(CONTEXT_SYSTEM);
 
-$viewurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/search.php");
+$viewurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
 $qurl = clone $viewurl;
 $qurl->param('id', $tid);
 
@@ -55,14 +57,15 @@ $nav = array (
     array (
         'name' => get_string('ticketview', 'block_helpdesk'),
         'link' => $qurl->out()
-    ),
+        ),
     array (
         'name' => get_string('assignments', 'block_helpdesk')
-    )
-);
+          )
+    );
 
 $title = get_string('helpdeskassignuser', 'block_helpdesk');
-helpdesk::page_init($title, $nav);
+helpdesk_print_header(build_navigation($nav), $title);
+print_heading(get_string('helpdesk', 'block_helpdesk'));
 helpdesk_is_capable(HELPDESK_CAP_ANSWER, true);
 
 $hd = helpdesk::get_helpdesk();
@@ -76,7 +79,7 @@ if (!empty($remove)) {
 
     // We have data we need, we can continue to remove an assignment.
     if(!$ticket->remove_assignment($uid)) {
-        error(get_string('unabletoremoveassignment', 'block_helpdesk'));
+        print_error(get_string('unabletoremoveassignment', 'block_helpdesk'));
     }
     $str_unassigned = get_string('hasbeenunassigned', 'block_helpdesk');
     $str_username = fullname(helpdesk_get_user($uid));
@@ -110,29 +113,27 @@ if (!empty($uid)) {
         }
     }
     if(!helpdesk_is_capable(HELPDESK_CAP_ANSWER, false, $uid)) {
-        error(get_string('usernotananswerer', 'block_helpdesk'));
+        print_error(get_string('usernotananswerer', 'block_helpdesk'));
     }
     // We want to add the assignment here.
     if(!$ticket->add_assignment($uid)) {
-        error(get_string('cannotaddassignment', 'block_helpdesk'));
+        print_error(get_string('cannotaddassignment', 'block_helpdesk'));
     }
     redirect($returnurl, get_string('assignmentadded', 'block_helpdesk'));
 }
 
 // No user selected, so its time to find us one.
-// There are also no more redirects, lets print out the page!
-helpdesk::page_header();
-$OUTPUT->heading(get_string('helpdesk', 'block_helpdesk'));
 
 // We are starting from scratch here!
 $offset = $page * $count;
-$assignables = get_users_by_capability($context, HELPDESK_CAP_ANSWER, 'u.*', 'u.lastname ASC', $offset, $count);
-$table = new html_table();
+$assignables = get_users_by_capability($context, HELPDESK_CAP_ANSWER, 'u.*',
+                                       'u.lastname ASC', $offset, $count);
+$table = new stdClass;
 $table->head = array (
     get_string('name'),
     get_string('email'),
     ''
-);
+    );
 $table->data = array();
 foreach($assignables as $user) {
     $userurl = new moodle_url("$CFG->wwwroot/user/view.php");
@@ -148,16 +149,18 @@ foreach($assignables as $user) {
     $table->data[] = array(
         "<a href=\"$url\">$fullname</a>",
         "<a href=\"$email\">$user->email</a>",
-        "<a href=\"$assign\">$assignstr</a>",
+        "<a class=\"helpdesk-action\" href=\"$assign\">$assignstr</a>",
         );
 }
-echo html_writer::table($table);
+print_table($table);
 
 // This makes the paging bar.
 $countfield = 'u.id';
-$total = get_users_by_capability($context, HELPDESK_CAP_ANSWER, $countfield);
+$total = get_users_by_capability($context, HELPDESK_CAP_ANSWER,
+                                 $countfield);
 $total = count($total);
 $url = new moodle_url(qualified_me());
-echo $OUTPUT->paging_bar($total, $page, $count, $url);
+print_paging_bar($total, $page, $count, $url, 'page');
 
-helpdesk::page_footer();
+print_footer();
+?>

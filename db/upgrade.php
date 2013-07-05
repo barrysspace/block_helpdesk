@@ -1,7 +1,9 @@
 <?php
 function xmldb_block_helpdesk_upgrade($oldversion = 0) {
-    global $db, $CFG;
-    $result = true;
+    global $DB, $CFG;
+    require_once($CFG->libdir.'/db/upgradelib.php'); // Core Upgrade-related functions
+    $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
+
     require_once("$CFG->dirroot/blocks/helpdesk/lib.php");
 
     // Any older version at this point.
@@ -15,7 +17,7 @@ function xmldb_block_helpdesk_upgrade($oldversion = 0) {
         $table->addFieldInfo('description', XMLDB_TYPE_TEXT, 'big', null, null,
                              null, null, null, null);
         $table->addKeyInfo('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $result = $result && create_table($table);
+        $dbman->create_table($table);
 
         // Create Status Table
         $table = new XMLDBTable('helpdesk_status');
@@ -30,7 +32,7 @@ function xmldb_block_helpdesk_upgrade($oldversion = 0) {
         $table->addFieldInfo('whohasball', XMLDB_TYPE_INTEGER, '20', XMLDB_UNSIGNED,
                              null, null, null, null, null);
         $table->addKeyInfo('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $result = $result && create_table($table);
+        $dbman->create_table($table);
 
         // Create Rule Table.
         $table = new XMLDBTable('helpdesk_rule');
@@ -60,7 +62,7 @@ function xmldb_block_helpdesk_upgrade($oldversion = 0) {
         $table->addFieldInfo('userassoc', XMLDB_TYPE_INTEGER, '5', null,
                              XMLDB_NOTNULL, null, null, null, null);
         $table->addKeyInfo('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $result = $result && create_table($table);
+        $dbman->create_table($table);
 
         // Now lets add new fields to...
         // Ticket table, groupid
@@ -68,14 +70,17 @@ function xmldb_block_helpdesk_upgrade($oldversion = 0) {
         $field = new XMLDBField('groupid');
         $field->setAttributes(XMLDB_TYPE_INTEGER, '20', XMLDB_UNSIGNED, null,
                               null, null, null, null, 'status');
-        $result = $result && add_field($table, $field);
+        $dbman->add_field($table, $field);
 
         //Ticket table, first contact.
         $table = new XMLDBTable('helpdesk_ticket');
         $field = new XMLDBField('firstcontact');
         $field->setAttributes(XMLDB_TYPE_INTEGER, '20', XMLDB_UNSIGNED, null,
                               null, null, null, null, 'groupid');
-        $result = $result && add_field($table, $field);
+        $dbman->add_field($table, $field);
+
+        // Main savepoint reached
+        upgrade_main_savepoint(true, 2010082700);
     }
 
     // Statuses are being move to the database here!
@@ -91,7 +96,7 @@ function xmldb_block_helpdesk_upgrade($oldversion = 0) {
         $table->addFieldInfo('capabilityname', XMLDB_TYPE_CHAR, '255', null,
                              XMLDB_NOTNULL, null, null, null, null);
         $table->addKeyInfo('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $result = $result && create_table($table);
+        $dbman->create_table($table);
 
         // New fields in status.
         // ticketdefault field.
@@ -99,46 +104,46 @@ function xmldb_block_helpdesk_upgrade($oldversion = 0) {
         $field = new XMLDBField('ticketdefault');
         $field->setAttributes(XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, null, null,
                               null, null, null, 'whohasball');
-        $result = $result && add_field($table, $field);
+        $dbman->add_field($table, $field);
 
         // active field.
         $table = new XMLDBTable('helpdesk_status');
         $field = new XMLDBField('active');
         $field->setAttributes(XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL,
                               null, null, null, null, 'ticketdefault');
-        $result = $result && add_field($table, $field);
+        $dbman->add_field($table, $field);
 
-        // We have to convert all the old style statuses over to new statuses.
-        // We don't like legacy data in the database. With that said, we need to
-        // populate all the statuses, which is normally done when the block is
+        // We have to convert all the old style statuses over to new statuses. 
+        // We don't like legacy data in the database. With that said, we need to 
+        // populate all the statuses, which is normally done when the block is 
         // installed. (for all versions starting with this one.)
         $hd = helpdesk::get_helpdesk();
         $hd->install();
         // Lets grab some stuff from the db first.
-        $new    = get_field('helpdesk_status', 'id', 'name', 'new');
-        $wip    = get_field('helpdesk_status', 'id', 'name', 'workinprogress');
-        $closed = get_field('helpdesk_status', 'id', 'name', 'closed');
+        $new    = $dbman->get_field('helpdesk_status', 'id', array('name' => 'new'));
+        $wip    = $dbman->get_field('helpdesk_status', 'id', array('name' => 'workinprogress'));
+        $closed = $dbman->get_field('helpdesk_status', 'id', array('name' => 'closed'));
 
-        // Now our statuses are installed. We're ready to convert legacy to
+        // Now our statuses are installed. We're ready to convert legacy to 
         // current. This could potentially use a lot of memory.
         $table = new XMLDBTable('helpdesk_ticket');
         $field = new XMLDBField('status');
         $field->setAttributes(XMLDB_TYPE_CHAR, '255', null, null,
                               null, null, null, null, 'assigned_refs');
-        $result = $result && rename_field($table, $field, 'oldstatus');
+        $dbman->rename_field($table, $field, 'oldstatus');
 
         $table = new XMLDBTable('helpdesk_ticket');
         $field = new XMLDBField('status');
         $field->setAttributes(XMLDB_TYPE_INTEGER, '20', XMLDB_UNSIGNED, XMLDB_NOTNULL,
                               null, null, null. null, $new);
-        $result = $result && add_field($table, $field);
+        $dbman->add_field($table, $field);
 
-        // We want to update all tickets without doing them all at once. Some
+        // We want to update all tickets without doing them all at once. Some 
         // systems may have limited memory.
         $chunksize = 100;       // 100 Records at a time.
-        $ticketcount = count_records('helpdesk_ticket');
+        $ticketcount = $DB->count_records('helpdesk_ticket');
 
-        // Lets grab all the statuses so we can convert the old ones. This
+        // Lets grab all the statuses so we can convert the old ones. This 
         // shouldn't be *too* bad.
 
 
@@ -147,23 +152,23 @@ function xmldb_block_helpdesk_upgrade($oldversion = 0) {
         $sql = "UPDATE {$CFG->prefix}helpdesk_ticket
                 SET status = $new
                 WHERE oldstatus = 'new'";
-        $result = $result && execute_sql($sql);
+        $dbman->execute_sql($sql);
 
         $sql = "UPDATE {$CFG->prefix}helpdesk_ticket
                 SET status = $wip
                 WHERE oldstatus = 'inprogress'";
-        $result = $result && execute_sql($sql);
+        $dbman->execute_sql($sql);
 
         $sql = "UPDATE {$CFG->prefix}helpdesk_ticket
                 SET status = $closed
                 WHERE oldstatus = 'closed'";
-        $result = $result && execute_sql($sql);
+        $dbman->execute_sql($sql);
 
-        // At this point, we're done. Lets get rid of the extra field in the
+        // At this point, we're done. Lets get rid of the extra field in the 
         // database that has the old statuses.
         $table = new XMLDBTable('helpdesk_ticket');
         $field = new XMLDBField('oldstatus');
-        $result = $result && drop_field($table, $field);
+        $dbman->drop_field($table, $field);
 
         // Lets not forget that we're storing status changes now.
         // So we need that field added to updates.
@@ -171,66 +176,77 @@ function xmldb_block_helpdesk_upgrade($oldversion = 0) {
         $field = new XMLDBField('newticketstatus');
         $field->setAttributes(XMLDB_TYPE_INTEGER, '20', XMLDB_UNSIGNED, null,
                               null, null, null, null, null);
-        $result = $result && add_field($table, $field);
+        $dbman->add_field($table, $field);
+
+        // Main savepoint reached
+        upgrade_main_savepoint(true, 2010091400);
     }
 
-    if($oldversion < 2011112900) {
-        $table = new XMLDBTable('helpdesk_ticket');
-        $index = new XMLDBIndex('idx_hd_t_userid');
-        $index->setAttributes(XMLDB_INDEX_NOTUNIQUE, array('userid'));
-        $result = $result && add_index($table, $index);
+    if ($oldversion < 2011020809) {
+        // Lets define new "hidden" base status.
+        $hidden = new stdClass;
+        $hidden->name = 'hidden';
+        $hidden->core = 1;
+        $hidden->ticketdefault = 0;
+        $hidden->active = 0;
 
-        $table = new XMLDBTable('helpdesk_ticket');
-        $index = new XMLDBIndex('idx_hd_t_firstcontact');
-        $index->setAttributes(XMLDB_INDEX_NOTUNIQUE, array('firstcontact'));
-        $result = $result && add_index($table, $index);
+        $hidden->id = $DB->insert_record('helpdesk_status', $hidden, true);
 
-        $table = new XMLDBTable('helpdesk_ticket');
-        $index = new XMLDBIndex('idx_hd_t_status');
-        $index->setAttributes(XMLDB_INDEX_NOTUNIQUE, array('status'));
-        $result = $result && add_index($table, $index);
+        // We have to convert all the old style statuses over to new statuses. 
+        // We don't like legacy data in the database. With that said, we need to 
+        // populate all the statuses, which is normally done when the block is 
+        // installed. (for all versions starting with this one.)
+        $hd = helpdesk::get_helpdesk();
 
-        $table = new XMLDBTable('helpdesk_ticket_tag');
-        $index = new XMLDBIndex('idx_hd_tt_ticketid');
-        $index->setAttributes(XMLDB_INDEX_NOTUNIQUE, array('ticketid'));
-        $result = $result && add_index($table, $index);
+        // Find all statuses for adding some new status mappings.
+        $new = $DB->get_record('helpdesk_status', array('name' => 'new'));
+        $wip = $DB->get_record('helpdesk_status', array('name' => 'workinprogress'));
+        $closed = $DB->get_record('helpdesk_status', array('name' => 'closed'));
+        $resolved = $DB->get_record('helpdesk_status', array('name' => 'resolved'));
+        $reopen = $DB->get_record('helpdesk_status', array('name' => 'reopened'));
+        $nmi = $DB->get_record('helpdesk_status', array('name' => 'needmoreinfo'));
+        $ip = $DB->get_record('helpdesk_status', array('name' => 'infoprovided'));
 
-        $table = new XMLDBTable('helpdesk_ticket_assignments');
-        $index = new XMLDBIndex('idx_hd_ta_userid');
-        $index->setAttributes(XMLDB_INDEX_NOTUNIQUE, array('userid'));
-        $result = $result && add_index($table, $index);
+        // Here is the complex part. We need to add new default mappings here.
+        // From New
+        // For Answerer
+        $hd->add_status_path($new, $hidden, HELPDESK_CAP_ANSWER);
 
-        $table = new XMLDBTable('helpdesk_ticket_assignments');
-        $index = new XMLDBIndex('idx_hd_ta_ticketid');
-        $index->setAttributes(XMLDB_INDEX_NOTUNIQUE, array('ticketid'));
-        $result = $result && add_index($table, $index);
+        // From WIP
+        // For Answerer.
+        $hd->add_status_path($wip, $hidden, HELPDESK_CAP_ANSWER);
+
+        // From Need More Info.
+        // For Answerer.
+        $hd->add_status_path($nmi, $hidden, HELPDESK_CAP_ANSWER);
+
+        // From Info Provided.
+        // For Answerer
+        $hd->add_status_path($ip, $hidden, HELPDESK_CAP_ANSWER);
+
+        // From Closed.
+        // For Answerers.
+        $hd->add_status_path($closed, $hidden, HELPDESK_CAP_ANSWER);
+
+        // From Resolved.
+        // For Answerers.
+        $hd->add_status_path($resolved, $hidden, HELPDESK_CAP_ANSWER);
+
+        // From reopen.
+        // For Answerers.
+        $hd->add_status_path($reopen, $hidden, HELPDESK_CAP_ANSWER);
+
+        // From Hidden.
+        // For Answerers.
+        $hd->add_status_path($hidden, $reopen, HELPDESK_CAP_ANSWER);
+        $hd->add_status_path($hidden, $resolved, HELPDESK_CAP_ANSWER);
+        $hd->add_status_path($hidden, $closed, HELPDESK_CAP_ANSWER);
+        // For Askers - nothing (ticket hiding is purely administrative thing).
+
+        // Main savepoint reached
+        upgrade_main_savepoint(true, 2011020809);
     }
 
-    if ($oldversion < 2013022800) {
-        $tables = array(
-            'helpdesk'                      => 'block_helpdesk',
-            'helpdesk_ticket'               => 'block_helpdesk_ticket',
-            'helpdesk_ticket_tag'           => 'block_helpdesk_ticket_tag',
-            'helpdesk_ticket_update'        => 'block_helpdesk_ticket_update',
-            'helpdesk_ticket_assignments'   => 'block_helpdesk_ticket_assign',
-            'helpdesk_ticket_group'         => 'block_helpdesk_ticket_group',
-            'helpdesk_status'               => 'block_helpdesk_status',
-            'helpdesk_status_path'          => 'block_helpdesk_status_path',
-            'helpdesk_rule'                 => 'block_helpdesk_rule',
-            'helpdesk_rule_email'           => 'block_helpdesk_rule_email'
-        );
-
-        foreach ($tables as $old_name => $new_name) {
-            // Define table block_helpdesk to be renamed to NEWNAMEGOESHERE
-            $table = new xmldb_table($old_name);
-
-            // Launch rename table for block_helpdesk
-            $dbman->rename_table($table, $new_name);
-        }
-
-        // helpdesk savepoint reached
-        upgrade_block_savepoint(true, 2013022800, 'helpdesk');
-    }
-
-    return $result;
+    return true;
 }
+?>

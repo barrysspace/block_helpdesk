@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script handles the updating of tickets by managing the UI and entry
+ * This script handles the updating of tickets by managing the UI and entry 
  * level functions for the task.
  *
  * @package     block_helpdesk
@@ -31,34 +31,35 @@ require_once("$CFG->dirroot/blocks/helpdesk/lib.php");
 
 require_login(0, false);
 
+global $CFG;
+
 $id = required_param('id', PARAM_INT);
 $baseurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
-$searchurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/search.php");
 $url = clone $baseurl;
 $url->param('id', $id);
 $nav = array (
     array (
         'name' => get_string('helpdesk', 'block_helpdesk'),
-        'link' => $searchurl->out()
-    ),
+        'link' => $baseurl->out()
+          ),
     array (
         'name' => get_string('ticketview', 'block_helpdesk'),
         'link' => $url->out()
     ),
     array (
         'name' => get_string('updateticket', 'block_helpdesk')
-    )
-);
+        )
+    );
 
 $title = get_string('helpdeskupdateticket', 'block_helpdesk');
-helpdesk::page_init($title, $nav);
-$OUTPUT->heading(get_string('updateticket', 'block_helpdesk'));
+helpdesk_print_header(build_navigation($nav), $title);
+print_heading(get_string('updateticket', 'block_helpdesk'));
 
 $hd = helpdesk::get_helpdesk();
 
 $ticket = $hd->get_ticket($id);
 if (!$ticket) {
-    error(get_string('invalidticketid', 'block_helpdesk'));
+    print_error(get_string('invalidticketid', 'block_helpdesk'));
 }
 
 $form = $hd->update_ticket_form($ticket);
@@ -71,11 +72,11 @@ if ( $form->is_submitted() and ($data = $form->get_data())) {
             $url = $url->out();
             redirect($url, get_string('updateadded', 'block_helpdesk'));
         } else {
-            error(get_string('cannotaddupdate', 'block_helpdesk'));
+            print_error(get_string('cannotaddupdate', 'block_helpdesk'));
         }
 }
-
-helpdesk::page_header();
 $form->display();
 $hd->display_ticket($ticket, true);
-helpdesk::page_footer();
+
+print_footer();
+?>

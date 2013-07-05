@@ -8,59 +8,9 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class helpdesk {
-    /**
-     * Unique to Moodle 2.x. This is one of the first things we do on any page
-     * and that is configure the $PAGE. We don't want to output the header yet
-     * because there could be redirections that will rely on the set URL in this
-     * method. --jdoane 20121105
-     */
-    public static function page_init($title, $nav=array(), $url=null) {
-        global $PAGE;
-        // Set up the page
-        $PAGE->set_context(get_context_instance(CONTEXT_SYSTEM));
-        $PAGE->set_heading($title);
-        $PAGE->set_title($title);
-        $PAGE->set_pagelayout('standard');
-        $PAGE->set_url(isset($url) ? $url : qualified_me());
-        $PAGE->requires->css('/blocks/helpdesk/style.css');
-
-        // Set up navigation, there are a couple different things we can do
-        // here. :)
-        $crumb_nav =& $PAGE->navbar;
-        foreach($nav as $navitem) {
-            if(empty($navitem['link'])) {
-                $navitem['link'] = null;
-            }
-            $crumb_nav->add($navitem['name'], $navitem['link']);
-        }
-
-        // We also have this neat navigation inside the navigation block which
-        // is configured as a tree, we will want to use this to provide some
-        // "easy to access" help desk links that are not related to the Help
-        // Desk context.
-        $hd_nav = $PAGE->navigation->add(get_string('helpdesk', 'block_helpdesk'));
-
-        // TODO: Add some more cool stuff here. --jdoane 20121105
-    }
 
     /**
-     * Help Desk wrapper for $OUTPUT->header()
-     */
-    public static function page_header() {
-        global $OUTPUT;
-        print $OUTPUT->header();
-    }
-
-    /**
-     * Help Desk wrapper for $OUTPUT->header()
-     */
-    public static function page_footer() {
-        global $OUTPUT;
-        print $OUTPUT->footer();
-    }
-
-    /**
-     * Every helpdesk has access to the moodle cron for this block. This method
+     * Every helpdesk has access to the moodle cron for this block. This method 
      * gets called every time cron hits the block.
      *
      * @return true
@@ -68,7 +18,7 @@ abstract class helpdesk {
     abstract function cron();
 
     /**
-     * This method can be overridden to run tasks after the tables have been
+     * This method can be overridden to run tasks after the tables have been 
      * created on install.
      *
      * @return bool
@@ -76,8 +26,6 @@ abstract class helpdesk {
     function install() {
         return true;
     }
-
-    abstract function is_installed();
 
     /**
      * Depending on the helpdesk being used, we want to check to see if an
@@ -87,6 +35,24 @@ abstract class helpdesk {
      * @return bool
      */
     abstract function is_update_hidden($update);
+
+    /**
+     * Returns the tickets for a sepcific user by id with a specific relation.
+     *
+     * @return mixed
+     */
+    abstract function get_tickets($userid, $rel, $offset=0, $count=10);
+
+    /**
+     * Returns the number of tickets instead of the rows.
+     * It is the same as get_tickets but COUNT(*)s. Will return int if successful
+     * or false (not zero) if failed.
+     *
+     * @param string    $userid User id if relation calls for it.
+     * @param int       $relation Relation id that dictates which tickets to get.
+     * @return mixed
+     */
+    abstract function get_tickets_count($userid, $rel);
 
     /**
      * returns a new ticket object.
@@ -117,7 +83,7 @@ abstract class helpdesk {
      * Abstract methods that returns a new ticket form for the helpdesk's
      * respective plugin.
      *
-     * @param array     $data is an array of stuff to be used by the plugin,
+     * @param array     $data is an array of stuff to be used by the plugin, 
      *                  such as new ticket tags.
      * @return moodleform
      */
@@ -172,7 +138,7 @@ abstract class helpdesk {
         $initpath = "{$CFG->dirroot}/blocks/helpdesk/plugins/$plugin/init.php";
 
         if (!file_exists($initpath)){
-            error(get_string('missingpluginfile', 'helpdesk_block') . ": init.php");
+            print_error(get_string('missingpluginfile', 'helpdesk_block') . ": init.php");
         }
 
         require_once($initpath);
@@ -202,12 +168,6 @@ abstract class helpdesk {
     abstract function get_default_relation($cap=null);
 
     /**
-     * Gets the search parameters for a legacy relation.
-     * TODO: Replace relation system all togther.
-     */
-    abstract function get_ticket_relation_search($rel);
-
-    /**
      * Gets a language string from a relation string.
      *
      * @param string    $rel ation string to convert to a human readable string.
@@ -217,7 +177,7 @@ abstract class helpdesk {
 
     /**
      * Get the default URL to submit a ticket for this plugin.
-     * Plugins can use this to collect available context data in the ticket by
+     * Plugins can use this to collect available context data in the ticket by 
      * default, without requiring user participation on those points.
      *
      * Returns a moodle_url object for the 'submitnewticket' link in the block.
@@ -225,25 +185,6 @@ abstract class helpdesk {
      * @return object
      */
     abstract function default_submit_url();
-
-    /**
-     * Gets status ids for the given parameters.
-     *
-     * @return array
-     */
-    abstract function get_status_ids($active=true, $inactive=true, $core=false);
-
-    /**
-     * Creates a new stdClass object with the approriate attributes.
-     *
-     * @return object
-     */
-    function new_search_obj() {
-        return (object)array(
-            'searchstring' => '',
-            'answerer' => -1,
-            'status' => array(),
-            'submitter' => 0
-        );
-    }
 }
+
+?>

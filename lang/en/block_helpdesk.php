@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is the english translation file for get_string() for all translatable
+ * This is the english translation file for get_string() for all translatable 
  * text in the help desk block.
  *
  * @package     block_helpdesk
@@ -24,21 +24,19 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname']            = 'Help Desk';
+$string['pluginname']           = 'Help Desk';
 $string['blockname']            = 'Help Desk';
 $string['helpdesk:answer']      = 'Help Desk Answerer';
 $string['block/helpdesk:answer']= $string['helpdesk:answer'];
-$string['answerer']             = 'Answerer';
-$string['anyanswerer']          = 'Any answerer';
 $string['helpdesk:ask']         = 'Help Desk Asker';
 $string['block/helpdesk:ask']   = $string['helpdesk:ask'];
 $string['helpdesk']             = 'Help Desk';
-$string['ticketinfo']           = 'Question details';
+$string['ticketinfo']           = 'Question Overview';
 $string['ticketid']             = 'Question ID';
 $string['submittedby']          = 'Submitted By';
 $string['timecreated']          = 'Created On';
 $string['status']               = 'Status';
-$string['anystatus']            = 'Any status';
+$string['statusnow']            = 'Current status';
 $string['specifics']            = 'Specific Question Details';
 $string['summary']              = 'Summary';
 $string['detail']               = 'Issue Details';
@@ -46,12 +44,13 @@ $string['ticketupdates']        = 'Question History';
 $string['user']                 = 'User';
 $string['date']                 = 'Date';
 $string['comment']              = 'Comment';
-$string['updateticket']         = 'Reply to question';
+$string['updateticket']         = 'Update Question';
 $string['updatestatus']         = 'Update Status';
 $string['update']               = 'Question Update';
 $string['status_comment']       = 'Comment';
 $string['status_progress']      = 'In Progress';
 $string['status_close']         = 'Closed';
+$string['status_hide']          = 'Hidden';
 $string['submitticket']         = 'Submit Question';
 $string['ticketview']           = 'View Question';
 $string['timemodified']         = 'Updated On';
@@ -59,6 +58,7 @@ $string['newticketform']        = 'New Question';
 $string['newticketmsg']         = 'Your question has been successfully submitted.';
 $string['newticket']            = 'New Question';
 $string['viewalltickets']       = 'View all Questions';
+$string['viewassignedtickets']  = 'View all assigned to me';
 $string['submitnewticket']      = 'Submit a new question';
 $string['mytickets']            = 'My Submitted Questions';
 $string['status_new']           = 'New';
@@ -68,7 +68,7 @@ $string['backtoticket']         = 'Return to question';
 $string['updates']              = 'Update History';
 $string['ticketviewer']         = 'Question Viewer';
 $string['noupdates']            = 'This question has no updates.';
-$string['addtag']               = 'Add a new tag';
+$string['addtag']               = 'Add New Tag';
 $string['tags']                 = 'Tags';
 $string['ticket']               = 'Question';
 $string['tickettag']            = 'Question Tagging';
@@ -107,10 +107,11 @@ $string['wasunassigned']        = 'was unassigned from the question.';
 $string['tagaddedwithnameof']   = 'A tag was added with the name of: ';
 $string['tagremovewithnameof']  = 'A tag was removed with the name of: ';
 $string['note']                 = 'Note';
+$string['update_type']          = 'Update Type';
 $string['update_type_none']     = 'No Type';
-$string['update_type_user']     = 'User Update';
-$string['update_type_detailed'] = 'Detailed Update';
-$string['update_type_system']   = 'System Update';
+$string['update_type_user']     = 'User';
+$string['update_type_detailed'] = 'Detailed';
+$string['update_type_system']   = 'System';
 $string['viewdetailedupdates']  = 'Show Detailed Updates';
 $string['viewsystemupdates']    = 'Show System Updates';
 $string['updatepreferences']    = 'Update History Preferences';
@@ -121,14 +122,15 @@ $string['preferencesupdated']   = 'Your preferences have been saved.';
 $string['resetonlogout']        = 'Notice: These preferences are reset when you log out.';
 $string['cannotaddassignment']  = 'Unable to add assignment.';
 $string['alltickets']           = 'All Questions';
-$string['reportedby']           = 'Active questions asked by user';
+$string['reportedby']           = 'Questions reported by user';
 $string['newtickets']           = 'New Questions';
 $string['assignedto']           = 'Questions assigned to user';
 $string['closedtickets']        = 'Closed Questions';
+$string['hiddentickets']        = 'Hidden Questions';
 $string['unassignedtickets']    = 'Unassigned Questions';
 $string['notes']                = 'Notes';
 $string['hideupdate']           = 'Hide Update';
-$string['hidden']               = 'Hidden';
+$string['hidden']               = 'Closed and hidden';
 $string['thisupdateishidden']   = 'This update is hidden';
 $string['assignthisuser']       = 'Assign this user';
 $string['noupdatestoview']      = 'There are no updates to view.';
@@ -140,10 +142,10 @@ $string['needmoreinfo']         = 'Need more info';
 $string['closed']               = 'Closed';
 $string['statuschanged']        = 'Question Status Updated';
 $string['detailschanged']       = 'Question Details Updated';
-$string['updateticketoverview'] = 'Update question details';
+$string['updateticketoverview'] = 'Update Question Overview';
 $string['changedetails']        = 'Edit Question';
 $string['savequestion']         = 'Save Question';
-$string['editoverview']         = 'Edit question details';
+$string['editoverview']         = 'Edit Overview';
 $string['ticketedited']         = 'Question has been edited.';
 $string['extrainformation']     = 'Extra Information';
 $string['updatemessage']        = 'Edit Update Notes';
@@ -177,19 +179,6 @@ $string['helpdesktagticket']    = 'Help Desk: Tagging';
 $string['helpdeskupdateticket'] = 'Help Desk: Update question';
 $string['helpdeskassignuser']   = 'Help Desk: Assign user to question';
 $string['helpdesksearch']       = 'Help Desk: Search questions';
-$string['helpdeskpreferences']  = 'Help Desk: Preferences';
-$string['useragent']            = 'HTTP agent string';
-$string['useroperatingsystem']  = 'Submitter\'s operating system';
-$string['helpdesknewticket']    = 'Help Desk: New Question';
-$string['relationnosearchpreset'] = 'Relation string has no search preset. Invalid relation?';
-$string['noanswerers']          = 'No answerers';
-$string['questionsperpage']     = 'Questions per page';
-$string['answerertools']        = 'Answerer question tools';
-$string['grabquestion']         = 'Grab this question';
-$string['questiongrabbed']      = 'Question grabbed';
-$string['showupdate']           = 'Show update';
-$string['updatewillnowbeshown'] = 'Update will now be shown';
-$string['updatewillnowbehidden']= 'Update will now be hidden';
 
 /**
  * These are settings.php strings.
@@ -234,8 +223,8 @@ $string['emailidlewait']        = 'Idle Question Email Timer<br />(Experimental)
 $string['emailidlewaitdesc']    = 'Set a duration in hours to send emails when a question has become idle.';
 $string['showfirstcontact']     = 'Show First Contact';
 $string['showfirstcontactdesc'] = 'Displays the first helper that replied to the question when viewing the ticket.';
-$string['includeagent']         = 'Include HTTP agent string';
-$string['includeagentdesc']     = 'This includes the submitters HTTP agent string and operating system as tags when a ticket is submitted.';
+$string['authcontextid']        = 'Authorization Context ID';
+$string['authcontextiddesc']    = 'Course number the Help Desk will use for determining access rights (1 = SYSTEM_CONTEXT)';
 
 // Email defaults
 $string['emaildefaultmsgtext']  = <<<EOF
@@ -251,26 +240,4 @@ Thank you,
 EOF;
 $string['emaildefaultsubject']  = 'Ticket #!ticketid! Updated';
 
-// Help strings
-$string['assigned']                 = 'Question Assignments';
-$string['assigned_help']            = 'Assigned users are Help Desk Answers who have been assigned to help resolve a given question.';
-$string['detailedupdates']          = 'Extra Detail Updates';
-$string['detailedupdates_help']     = 'This option displays extra detail updates when viewing a specific question. This includes user (un)assignments and tag removals and additions.';
-$string['firstcontact']             = 'First Contact';
-$string['firstcontact_help']        = 'This user is the first helper that made an update to your ticket. This person is essentially responsible for your question, even if another user was assigned to the ticket.';
-$string['overview']                 = 'Question Overview';
-$string['overview_help']            = 'The question overview provides a basic description about the question that is currently being displayed.';
-$string['pref']                     = 'Preferences';
-$string['pref_help']                = 'Preferences allows users to change how some information is presented or if any specific information is presented. Many of these settings reset after you log out.';
-$string['relations']                = 'Question Relations';
-$string['relations_help']           = 'Click a link to choose a group of questions to see. These are short-cuts to help you quickly find a question if you know something about its status or its relation.';
-$string['search']                   = 'Question Searching';
-$string['search_help']              = 'This search phrase is a series of words that are used to find matching questions. Questions are searched by their summaries, details, tags, and updates.';
-$string['systemupdates']            = 'System Updates';
-$string['systemupdates_help']       = 'This option enables you to see system updates. System updates include automatic communication and automatic actions performed by the server.';
-$string['tag']                      = 'Tags';
-$string['tag_help']                 = 'Tags are extra little bits of information that an answerer found useful and added to the question to make a record of it. These tags are customizable and allows an answerer to add any information that he or she sees fit.';
-$string['update']                   = 'Question Updates';
-$string['update_help']              = 'Updates reflect communication from any user who is working on a given question. Updates can reflect changes in a question as well as system updates if a user has setup their preferences to view these, they are disabled by default.';
-$string['grab']                     = 'Grab Question';
-$string['grab_help']                = 'As an answerer, you have the ability to take over a question if no one has touched it yet. This makes you the first contact (if enabled by your administrator,) and assigns you to the question.';
+?>

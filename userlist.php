@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script handles the updating of tickets by managing the UI and entry
+ * This script handles the updating of tickets by managing the UI and entry 
  * level functions for the task.
  *
  * @package     block_helpdesk
@@ -25,6 +25,7 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+global $CFG;
 
 require_once("$CFG->dirroot/blocks/helpdesk/lib.php");
 require_once("$CFG->dirroot/user/filters/lib.php");
@@ -40,12 +41,7 @@ $perpage        = optional_param('perpage', 20, PARAM_INT);
 $sort           = optional_param('sort', 'name', PARAM_ALPHA);
 $dir            = optional_param('dir', 'ASC', PARAM_ALPHA);
 
-if ($sort == "name") {
-    $sort = "firstname";
-}
-
 $baseurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
-$searchurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/search.php");
 $thisurl = new moodle_url(me());
 $thisurl->remove_params();
 $thisurl->param('paramname', $paramname);
@@ -63,7 +59,7 @@ if (is_numeric($ticketid)) {
     $nav[] = array (
         'name' => get_string('ticketview', 'block_helpdesk'),
         'link' => $ticketreturn->out()
-    );
+        );
 }
 $nav[] = array (
     'name' => get_string('updateticketoverview', 'block_helpdesk'),
@@ -72,19 +68,19 @@ $nav[] = array (
 $nav[] = array (
     'name' => get_string('selectauser', 'block_helpdesk'),
 );
-$url = new moodle_url("{$CFG->wwwroot}/blocks/helpdesk/userlist.php");
-$title = get_string('changeuser', 'block_helpdesk');
-helpdesk::page_init($title, $nav, $url);
-helpdesk::page_header();
+
+helpdesk_print_header(build_navigation($nav));
+print_heading(get_string('changeuser', 'block_helpdesk'));
 
 $hd = helpdesk::get_helpdesk();
 
 helpdesk_is_capable(HELPDESK_CAP_ANSWER, true);
 
-$ufiltering = new user_filtering(null, $FULLME);
+
+$ufiltering = new user_filtering(null, qualified_me());
 
 $columns = array ('fullname', 'email');
-$table = new html_table();
+$table = new stdClass;
 $table->head = array();
 $table->data = array();
 
@@ -96,42 +92,52 @@ foreach ($columns as $column) {
     $table->head[$column] = get_string("$column");
 }
 
+if ($sort == "name") {
+    $sort = "firstname";
+}
+
 $extrasql = $ufiltering->get_sql_filter();
-list($esql, $eparams) = $extrasql;
-$users = get_users(true, '', true, array(), "$sort $dir", '', '', $page, $perpage, '*', $esql, $eparams);
+$users = get_users_listing($sort, $dir, $page*$perpage, $perpage, '', '', '', $extrasql);
 $usercount = get_users(false);
-$usersearchcount = get_users(false, '', true, array(), "{$sort} ASC", '', '', $page, $perpage, '*', $esql, $eparams);
+$usersearchcount = get_users(false, '', true, "", "", '', '', '', '', '*', $extrasql);
 
 if ($extrasql !== '') {
-    echo $OUTPUT->heading("$usersearchcount / $usercount ".get_string('users'));
+    print_heading("$usersearchcount / $usercount ".get_string('users'));
     $usercount = $usersearchcount;
 } else {
-    echo $OUTPUT->heading("$usercount ".get_string('users'));
+    print_heading("$usercount ".get_string('users'));
 }
+
+$alphabet = explode(',', get_string('alphabet'));
+$strall = get_string('all');
 
 $thisurl->param('sort', $sort);
 $thisurl->param('dir', $dir);
 $thisurl->param('perpage', $perpage);
 $thisurl = $thisurl->out() . '&';
 
-echo $OUTPUT->paging_bar($usercount, $page, $perpage, $thisurl);
+print_paging_bar($usercount, $page, $perpage, $thisurl);
 
 flush();
 
 foreach($users as $user) {
+    if ($user->username == 'guest') {
+        continue;
+    }
     $url = new moodle_url($returnurl);
     $url->param($paramname, $user->id);
 
-    $changelink = fullname($user) . ' <small>(<a href="' . $url->out() . '">' .
-            get_string('selectuser', 'block_helpdesk') . '</a>)</small>';
+    $changelink = fullname($user) . ' <small> <a class="helpdesk-action" href="' . $url->out() . '">' . 
+            get_string('selectuser', 'block_helpdesk') . '</a></small>';
     $table->data[] = array(
         $changelink,
         $user->email
-    );
+        );
 }
 $ufiltering->display_add();
 $ufiltering->display_active();
-echo html_writer::table($table);
-echo $OUTPUT->paging_bar($usercount, $page, $perpage, $thisurl);
+print_table($table);
+print_paging_bar($usercount, $page, $perpage, $thisurl);
 
-echo $OUTPUT->footer();
+print_footer();
+?>

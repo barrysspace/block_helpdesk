@@ -14,20 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * This script extends a moodle block_base and is the entry point for all
- * helpdesk  ability.
- *
- * @package     block_helpdesk
- * @copyright   2010 VLACS
- * @author      Jonathan Doane <jdoane@vlacs.org>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2013052300;
-$plugin->requires  = 2012062500;        // Requires this Moodle 2.3
-$plugin->component = 'block_helpdesk';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.3 (Build 2013052300)';
+$plugin->version = 2011100911;
+$plugin->cron = 1;

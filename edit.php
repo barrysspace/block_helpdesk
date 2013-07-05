@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script handles the updating of tickets by managing the UI and entry
+ * This script handles the updating of tickets by managing the UI and entry 
  * level functions for the task.
  *
  * @package     block_helpdesk
@@ -25,6 +25,7 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+global $CFG;
 
 require_once("$CFG->dirroot/blocks/helpdesk/lib.php");
 
@@ -33,25 +34,25 @@ require_login(0, false);
 $id = required_param('id', PARAM_INT);
 $newuser = optional_param('newuser', null, PARAM_INT);
 $baseurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
-$searchurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/search.php");
 $url = clone $baseurl;
 $url->param('id', $id);
 $nav = array (
     array (
         'name' => get_string('helpdesk', 'block_helpdesk'),
-        'link' => $searchurl->out()
-    ),
+        'link' => $baseurl->out()
+          ),
     array (
         'name' => get_string('ticketview', 'block_helpdesk'),
         'link' => $url->out()
     ),
     array (
-        'name' => get_string('updateticketoverview', 'block_helpdesk'),
-        'link' => ''
-    )
-);
+        'name' => get_string('updateticketoverview', 'block_helpdesk')
+        )
+    );
+
 $title = get_string('helpdeskeditticket', 'block_helpdesk');
-helpdesk::page_init($title, $nav);
+helpdesk_print_header(build_navigation($nav), $title);
+print_heading(get_string('updateticketoverview', 'block_helpdesk'));
 
 $hd = helpdesk::get_helpdesk();
 
@@ -59,7 +60,7 @@ helpdesk_is_capable(HELPDESK_CAP_ANSWER, true);
 
 $ticket = $hd->get_ticket($id);
 if (!$ticket) {
-    error(get_string('invalidticketid', 'block_helpdesk'));
+    print_error(get_string('invalidticketid', 'block_helpdesk'));
 }
 
 if ($newuser != null ) {
@@ -76,7 +77,7 @@ if ( $form->is_submitted() and ($data = $form->get_data())) {
     $ticket->set_status($data->status);
     $ticket->set_userid($data->userid);
     if (!$ticket->store_edit($data->msg)) {
-        error(get_string('cannotaddupdate', 'block_helpdesk'));
+        print_error(get_string('cannotaddupdate', 'block_helpdesk'));
     }
     $url = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
     $url->param('id', $id);
@@ -84,9 +85,8 @@ if ( $form->is_submitted() and ($data = $form->get_data())) {
     redirect($url, get_string('ticketedited', 'block_helpdesk'));
 }
 
-helpdesk::page_header();
-print $OUTPUT->heading(get_string('updateticketoverview', 'block_helpdesk'));
-
 $form->display();
 
-helpdesk::page_footer();
+print_footer();
+
+?>

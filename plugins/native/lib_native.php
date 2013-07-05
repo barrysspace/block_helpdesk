@@ -29,6 +29,7 @@
 define('HELPDESK_NATIVE_STATUS_NEW', 'new');
 define('HELPDESK_NATIVE_STATUS_CLOSED', 'closed');
 define('HELPDESK_NATIVE_STATUS_INPROGRESS', 'workinprogress');
+define('HELPDESK_NATIVE_STATUS_HIDDEN', 'hidden');
 
 // stored in the update table
 define('HELPDESK_NATIVE_UPDATE_COMMENT', 'comment');
@@ -46,6 +47,7 @@ define('HELPDESK_NATIVE_REL_REPORTEDBY', 'reportedby');
 define('HELPDESK_NATIVE_REL_ASSIGNEDTO', 'assignedto');
 define('HELPDESK_NATIVE_REL_NEW', 'newtickets');
 define('HELPDESK_NATIVE_REL_CLOSED', 'closedtickets');
+define('HELPDESK_NATIVE_REL_HIDDEN', 'hiddentickets');
 define('HELPDESK_NATIVE_REL_UNASSIGNED', 'unassignedtickets');
 
 // Functions
@@ -57,7 +59,7 @@ define('HELPDESK_NATIVE_REL_UNASSIGNED', 'unassignedtickets');
  */
 function get_ticket_statuses() {
     global $DB;
-    $status = $DB->get_records('block_helpdesk_status', array(), 'name ASC');
+    $status = $DB->get_records('helpdesk_status', null, 'name ASC');
     return $status;
 }
 
@@ -71,3 +73,5 @@ function get_status_string($status) {
     $instance = $hd->new_ticket();
     return $instance->get_status_string($status);
 }
+
+?>

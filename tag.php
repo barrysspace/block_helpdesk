@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is the tag script. It handles all the UI and entry level functions to
+ * This is the tag script. It handles all the UI and entry level functions to 
  * carry out this task.
  *
  * @package     block_helpdesk
@@ -25,7 +25,11 @@
  */
 
 // We are moodle, so we should get necessary stuff.
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once('../../config.php');
+require_once($CFG->libdir . '/blocklib.php');
+require_once($CFG->libdir . '/weblib.php');
+require_once($CFG->libdir . '/datalib.php');
+require_once($CFG->libdir . '/formslib.php');
 
 // We are the helpdesk, so we need the core library.
 require_once($CFG->dirroot . '/blocks/helpdesk/lib.php');
@@ -36,11 +40,12 @@ $tid = optional_param('tid', null, PARAM_INT);
 $tag = optional_param('tagid', null, PARAM_INT);
 $remove = optional_param('remove', null, PARAM_INT);
 
-// User should be logged in, no guests or askers, only answerers.
-helpdesk_is_capable(HELPDESK_CAP_ANSWER, true);
-
 // Get plugin helpdesk.
 $hd = helpdesk::get_helpdesk();
+
+// Create form and get data. There may be something, then again maybe not.
+// Lets try a cleaner way to do this.
+$form = $hd->tag_ticket_form($tid);
 
 // Build Navigation
 $ticketurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
@@ -56,18 +61,18 @@ $nav[] = array (
 );
 $nav[] = array ('name' => get_string('tags', 'block_helpdesk'));
 
-$title = get_string('helpdesktagticket', 'block_helpdesk');
-helpdesk::page_init($title, $nav);
+// User should be logged in, no guests or askers, only answerers.
+helpdesk_is_capable(HELPDESK_CAP_ANSWER, true);
 
-// Create form and get data. There may be something, then again maybe not.
-// Lets try a cleaner way to do this.
-$form = $hd->tag_ticket_form($tid);
+$title = get_string('helpdesktagticket', 'block_helpdesk');
+helpdesk_print_header(build_navigation($nav), $title);
+print_heading(get_string('helpdesk', 'block_helpdesk'));
 
 $ticket = $hd->get_ticket($tid);
 // First, if we're removing a tag, that takes priority over all else.
 if (is_numeric($remove)) {
     if (!$ticket->remove_tag($remove)) {
-        error(get_string('unabletoremovetag', 'block_helpdesk'));
+        print_error(get_string('unabletoremovetag', 'block_helpdesk'));
     }
     $url = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
     $url->param('id', $tid);
@@ -78,16 +83,15 @@ if (is_numeric($remove)) {
     $data->ticketid = $tid;
     $tag = $ticket->parse_tag($data);
     if(!$ticket->add_tag($tag)) {
-        error(get_string('unabletoaddtag'));
+        print_error(get_string('unabletoaddtag'));
     }
     // At this point, the new tag has been added.
     $url = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
     $url->param('id', $data->ticketid);
     redirect($url->out(), get_string('tagadded', 'block_helpdesk'));
+} else {
+    $form->display();
 }
 
-helpdesk::page_header();
-$OUTPUT->heading(get_string('helpdesk', 'block_helpdesk'));
-$form->display();
-
-helpdesk::page_footer();
+print_footer();
+?>

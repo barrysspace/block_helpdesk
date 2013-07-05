@@ -1,3 +1,5 @@
+@import url("/blocks/helpdesk/css/helpdesk.css");
+
 div.ticketupdates {
   width: 49%;
   float: right;
@@ -8,16 +10,15 @@ div.ticketinfo {
 }
 div#ticketlistoptions {
     display: block;
-    width: 100%;
-    min-height: 15em;
+/*  width: 95%;  */
+    height: 13.5em;
+    padding-bottom: 3em;
 }
 div.left2div {
-    display: inline-block;
     width: 49%;
-    /*float: left;*/
+    float: left;
 }
 div.right2div {
-    display: inline-block;
     width: 49%;
     float: right;
 }
@@ -25,37 +26,25 @@ li {
     min-width: 1px;
 }
 table {
+    table-layout: fixed;
     word-wrap: break-word;
 }
-
-table.helpdesktable {
+#page-blocks-helpdesk-view div.left2div {
+    width: 59%;
+}
+#page-blocks-helpdesk-view div.right2div {
+    width: 39%;
+}
+.mform .fitem .fitemtitle {
+    width: 20%;
+    margin-right: 10px;
+}
+.mform input[type="text"] {
+    width: 88%;
+}
+#page-blocks-helpdesk-view .generaltable {
     width: 100%;
 }
-
-table.detailstable tr td:first-child {
-    width: 30%;
-}
-
-table.tagstable tr td:first-child {
-    width: 30%;
-}
-
-table.assigntable tr td:first-child {
-    width: 70%;
-}
-
-table.updatelisttable>tbody>tr>td {
-    padding: 0;
-}
-
-table.updatetable {
-    margin: 0;
-}
-
-table.updatetable th {
-    text-align: left;
-}
-
-table.updatetable tr td:first-child {
-    width: 30%;
+#page-blocks-helpdesk-search .generaltable {
+    width: 100%;
 }

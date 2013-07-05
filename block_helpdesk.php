@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script extends a moodle block_base and is the entry point for all
+ * This script extends a moodle block_base and is the entry point for all 
  * helpdesk  ability.
  *
  * @package     block_helpdesk
@@ -25,51 +25,45 @@
  */
 
 defined('MOODLE_INTERNAL') or die("Direct access to this location is not allowed.");
-
 require_once("$CFG->dirroot/blocks/helpdesk/lib.php");
 
 class block_helpdesk extends block_base {
     var $hd;
     /**
-     * Overridden block_base method. All this method does is sets the block's
+     * Overridden block_base method. All this method does is sets the block's 
      * title and version.
      *
      * @return null
      */
     function init() {
         $this->title = get_string('helpdesk', 'block_helpdesk');
+        $this->version = 2011080110;
         $this->cron = 1;
     }
 
     /**
-     * Overridden method that gets called every time. This is the only place to
-     * make sure the help desk gets installed.
+     * This overridden method gets called after the block's tables are created.
      *
-     * @return null
+     * @return bool
      */
-    function specialization() {
-        global $DB;
-        // If no core statuses, install the plugin.
-        // TODO: Make this less brain dead.
+    function after_install() {
         $hd = helpdesk::get_helpdesk();
-        if(!$hd->is_installed()) {
-            $hd->install();
-        }
+        $rval = $hd->install();
     }
 
     /**
-     * Overridden block_base method. This generates the content in the body of
+     * Overridden block_base method. This generates the content in the body of 
      * the block and returns it.
      *
      * @return string
      */
     function get_content() {
-        global $CFG, $USER;
+        global $CFG, $USER, $SESSION;
         // Get objects initialized and variables declared.
 
         $this->content = new stdClass;
 
-        // First thing is first, user must have some form of capbility on the
+        // First thing is first, user must have some form of capbility on the 
         // helpdesk. Otherwise they shouldn't be able to access it.
         $cap = helpdesk_is_capable();
         $this->content->text = '';
@@ -82,27 +76,31 @@ class block_helpdesk extends block_base {
         // Lets get the helpdesk initialized.
         $hd = helpdesk::get_helpdesk();
 
+        // Set default issue list option or askers will not see updates to their questions!
+        if ((!isset($SESSION->block_helpdesk)) || (!isset($SESSION->block_helpdesk->showdetailedupdates))) {
+            helpdesk_set_session_var('showdetailedupdates', true);
+        }
+
         // Show assigned ticket if answerer.
         if ($cap == HELPDESK_CAP_ANSWER) {
-            $title = '<h3>' . get_string('myassignedtickets', 'block_helpdesk') . '</h3>';
+            $title = '<h3 class="helpdesk-title">' . get_string('myassignedtickets', 'block_helpdesk') . '</h3>';
             $this->content->text .= $title;
 
-            $tickets = $hd->search(
-                $hd->get_ticket_relation_search($hd->get_default_relation(HELPDESK_CAP_ANSWER)),
-                5, 0
-            );
-            if (!empty($tickets->count)) {
+            $tickets = $hd->get_tickets($USER->id, $hd->get_default_relation(HELPDESK_CAP_ANSWER), 0, 5);
+            if (is_array($tickets)) {
                 $this->content->text .= "<ul>";
-                foreach($tickets->results as $ticket) {
-                    $summary = $ticket->get_summary();
-                    if(strlen($summary) > 12) {
-                        $summary = substr($summary, 0, 12) . '...';
+                foreach($tickets as $ticket) {
+                    $summary = $ticket->get_summary(true);
+                    $title = "";
+                    if(strlen($summary) > 22) {
+                        $title = $summary;
+                        $summary = substr($summary, 0, 22) . '...';
                     }
                     $url = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
                     $url->param('id', $ticket->get_idstring());
                     $url = $url->out();
                     $this->content->text .= "<li>
-                                             <a href=\"$url\">
+                                             <a href=\"$url\"" . ($title != "" ? " title=\"$title\"" : "") . ">
                                                 $summary (" . $ticket->get_status_string() . ")
                                              </a>
                                          </li>";
@@ -113,27 +111,26 @@ class block_helpdesk extends block_base {
             }
         }
 
-        // Print my tickets title. Block itself just displays first 5 user
+        // Print my tickets title. Block itself just displays first 5 user 
         // tickets. Other tickets are found in ticket listing.
-        $this->content->text .= '<h3>' . get_string('mytickets', 'block_helpdesk') . '</h3>';
+        $this->content->text .= '<h3 class="helpdesk-title">' . get_string('mytickets', 'block_helpdesk') . '</h3>';
 
         // Grab the tickets to display and add to the content.
-        $so = $hd->new_search_obj();
-        $so->submitter = $USER->id;
-        $so->status = $hd->get_status_ids(true, false);
-        $tickets = $hd->search($so, 5, 0);
-        if (!empty($tickets->count)) {
+        $tickets = $hd->get_tickets($USER->id, $hd->get_default_relation(), 0, 5);
+        if (is_array($tickets)) {
             $this->content->text .= '<ul>';
-            foreach($tickets->results as $ticket) {
-                $summary = $ticket->get_summary();
-                if(strlen($summary) > 12) {
-                    $summary = substr($summary, 0, 12) . '...';
+            foreach($tickets as $ticket) {
+                $summary = $ticket->get_summary(true);
+                $title = "";
+                if(strlen($summary) > 22) {
+                    $title = $summary;
+                    $summary = substr($summary, 0, 22) . '...';
                 }
                 $url = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
                 $url->param('id', $ticket->get_idstring());
                 $url = $url->out();
                 $this->content->text .= "<li>
-                                            <a href=\"$url\">
+                                            <a href=\"$url\"" . ($title != "" ? " title=\"$title\"" : "") . ">
                                                 $summary (" . $ticket->get_status_string() . ')
                                             </a>
                                          </li>';
@@ -144,9 +141,18 @@ class block_helpdesk extends block_base {
         }
 
         // Link for viewing all kinds of tickets.
-        $url = "$CFG->wwwroot/blocks/helpdesk/search.php";
+        $url = "$CFG->wwwroot/blocks/helpdesk/view.php";
         $text = get_string('viewalltickets', 'block_helpdesk');
-        $this->content->text .= "<a href=\"$url\">$text</a><br />";
+        if ($cap == HELPDESK_CAP_ANSWER)
+            $this->content->text .= "<a href=\"$url?rel=alltickets\">$text</a><br />";
+        else
+            $this->content->text .= "<a href=\"$url\">$text</a><br />";
+
+        // Show link for viewing all assigned tickets if answerer.
+        if ($cap == HELPDESK_CAP_ANSWER) {
+            $text = get_string('viewassignedtickets', 'block_helpdesk');
+            $this->content->text .= "<a href=\"$url?rel=assignedto\">$text</a><br />";
+        }
 
         // Link for submitting a new ticket.
         $url = $hd->default_submit_url()->out();
@@ -164,7 +170,7 @@ class block_helpdesk extends block_base {
     }
 
     /**
-     * This is an overriden method. This method is called when Moodle's cron
+     * This is an overriden method. This method is called when Moodle's cron 
      * runs. Currently this method does nothing and returns nothing.
      *
      * @return null
@@ -188,3 +194,4 @@ class block_helpdesk extends block_base {
         return false;
     }
 }
+?>

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a preferences script. This allows the user to change settings that
+ * This is a preferences script. This allows the user to change settings that 
  * may alter how the helpdesk is viewed.
  *
  * @package     block_helpdesk
@@ -26,32 +26,36 @@
 
 // We are moodle, so we shall become moodle.
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once($CFG->libdir . '/moodlelib.php');
+require_once($CFG->libdir . '/weblib.php');
 
 // We are also Helpdesk, so we shall also become a helpdesk.
 require_once("$CFG->dirroot/blocks/helpdesk/lib.php");
 require_once("$CFG->dirroot/blocks/helpdesk/pref_form.php");
 
 require_login(0, false);
+$baseurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/view.php");
 
-$baseurl = new moodle_url("$CFG->wwwroot/blocks/helpdesk/search.php");
 $nav = array (
-    array ('name' => get_string('helpdesk', 'block_helpdesk'), 'link' => $baseurl->out()),
-    array ('name' => get_string('preferences')),
-);
-helpdesk::page_init(get_string('helpdeskpreferences', 'block_helpdesk'), $nav);
-helpdesk::page_header();
+    array (
+        'name' => get_string('helpdesk', 'block_helpdesk'),
+        'link' => $baseurl->out()
+          ),
+    array (
+        'name' => get_string('preferences')
+          )
+    );
 
+helpdesk_print_header(build_navigation($nav));
 require_login();
 
 if(!helpdesk_is_capable()) {
-    error(get_string('nocapabilities', 'block_helpdesk'));
+    print_error(get_string('nocapabilities', 'block_helpdesk'));
 }
 
 // By default, these are disabled (false).
-$preferences = (object) array(
-    'showsystemupdates'     => (bool) helpdesk_get_session_var('showsystemupdates'),
-    'showdetailedupdates'   => (bool) helpdesk_get_session_var('showdetailedupdates'),
-);
+$preferences->showsystemupdates = (bool)helpdesk_get_session_var('showsystemupdates');
+$preferences->showdetailedupdates = (bool)helpdesk_get_session_var('showdetailedupdates');
 
 $form = new helpdesk_pref_form(qualified_me(), null, 'post');
 
@@ -59,11 +63,11 @@ $form = new helpdesk_pref_form(qualified_me(), null, 'post');
 if (!$form->is_submitted()) {
     $form->set_data($preferences);
     $form->display();
-    helpdesk::page_footer();
+    print_footer();
     exit;
 }
 
-// We have a submitted form, lets assume everything changed and update
+// We have a submitted form, lets assume everything changed and update 
 // everything.
 $data = $form->get_data();
 foreach($data as $key => $value) {
@@ -71,4 +75,5 @@ foreach($data as $key => $value) {
 }
 
 redirect($CFG->wwwroot, get_string('preferencesupdated', 'block_helpdesk'));
-helpdesk::page_footer();
+print_footer();
+?>

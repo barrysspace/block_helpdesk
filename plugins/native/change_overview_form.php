@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Update form. This handles updates to a ticket, not updating the ticket
+ * Update form. This handles updates to a ticket, not updating the ticket 
  * itself. Extends moodleform.
  *
  * @package     block_helpdesk
@@ -24,7 +24,10 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+global $CFG;
+
 class change_overview_form extends moodleform {
+
     private $ticket;
 
     function change_overview_form($action=null, $customdata=null, $method='post',
@@ -34,11 +37,12 @@ class change_overview_form extends moodleform {
         parent::moodleform($action, $customdata, $method, $target, $attributes,
                             $editable);
     }
-
     function definition() {
         $mform =& $this->_form;
 
         $mform->addElement('header', 'frm', get_string('updateticketoverview', 'block_helpdesk'));
+        $idstrparams = array('readonly' => 'readonly', 'disabled' => 'disabled', 'value' => $this->ticket->get_idstring(true));
+        $mform->addElement('text', 'idstr', get_string('ticketid', 'block_helpdesk'), $idstrparams);
         $userparams = array('readonly' => 'readonly', 'disabled' => 'disabled');
         $mform->addElement('text', 'username', get_string('submittedby', 'block_helpdesk'), $userparams);
         $mform->addElement('hidden', 'userid', '0');
@@ -73,7 +77,7 @@ class change_overview_form extends moodleform {
 
         $mform->closeHeaderBefore('msgheader');
         $mform->addElement('header', 'msgheader', get_string('extrainformation', 'block_helpdesk'));
-        $mform->addElement('htmleditor', 'msg', get_string('updatemessage', 'block_helpdesk'));
+        $mform->addElement('htmleditor', 'msg', get_string('updatemessage', 'block_helpdesk'), $htmleditorparams);
         $mform->setType('msg', PARAM_RAW);
         $mform->addRule('msg', null, 'required', 'server');
         $mform->closeHeaderBefore('submitbutton');
@@ -90,8 +94,10 @@ class change_overview_form extends moodleform {
         return true;
     }
 
-    function validation($data, $files) {
+    function validation($data) {
         // Maybe at some point. Defaults work well already.
         return array();
     }
+
 }
+?>

@@ -1,0 +1,100 @@
+/**
+  *  Additional styles to use with chosen theme
+  *  To use, add the following rule in the theme CSS file:
+  *  @import url("/blocks/helpdesk/css/helpdesk.css");
+  */
+h3.helpdesk-title {
+    margin-top: 0px;
+}
+
+div.ticketupdates table {
+    border-bottom: solid #888 2px;
+}
+
+tr.helpdesk-status.status-comment td {
+    background-color: #d680d6;
+}
+tr.helpdesk-status.status-assign td {
+    background-color: #ffc02b;
+}
+tr.helpdesk-status.status-unassign td {
+    background-color: #ffcc55;
+}
+tr.helpdesk-status.status-tag td {
+    background-color: #aaaaaa;
+}
+tr.helpdesk-status.status-untag td {
+    background-color: #8a8a8a;
+}
+tr.helpdesk-status.status-statuschanged td {
+    background-color: #40ff40;
+}
+tr.helpdesk-status.status-detailschanged td {
+    background-color: #80ff80;
+}
+
+tr.helpdesk-notes td.cell {
+    background-color: #ffffb0;
+}
+tr.helpdesk-notes.lastnote td.cell {
+    background-color: #ffff60;
+}
+tr.helpdesk-detail td.cell {
+    background-color: #ffff60;
+}
+
+div.ticketinfo th>span.head {
+    float: left;
+    margin-left: 50px;
+}
+div.ticketupdates th>span.head {
+    float: left;
+    margin-left: 80px;
+}
+
+div.ticketinfo th br,
+div.ticketupdates th br {
+    display: none;
+}
+div.ticketinfo th br+a,
+div.ticketupdates th br+a {
+    float: right;
+}
+div.ticketinfo th br+a:link,
+div.ticketupdates th br+a:link,
+div.ticketinfo th br+a:visited,
+div.ticketupdates th br+a:visited {
+    border: 2px outset;
+    text-decoration: none;
+    padding-left: 2px;
+    padding-right: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-color: #ccc #bbb #bbb #ccc;
+}
+div.ticketinfo th br+a:hover,
+div.ticketupdates th br+a:hover {
+    border-color: #ddd;
+    padding-left: 3px;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+a.helpdesk-action:link,
+a.helpdesk-action:visited {
+    border: 2px outset;
+    text-decoration: none;
+    padding-left: 2px;
+    padding-right: 3px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border-color: #ccc #bbb #bbb #ccc;
+}
+a.helpdesk-action:hover {
+    border-color: #ddd;
+    padding-left: 3px;
+    padding-right: 2px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
