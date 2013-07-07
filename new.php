@@ -90,6 +90,10 @@ if (!$ticket->store()) {
 }
 $id = $ticket->get_idstring();
 
+$real_id = $ticket->get_real_id();
+
+$email_admins = send_admin_emails($data, $id, $real_id);
+
 if (!empty($data->tags)) {
     $taglist = array();
     $tags = explode(',', $data->tags);

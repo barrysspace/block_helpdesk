@@ -123,7 +123,6 @@ $string['resetonlogout']        = 'Notice: These preferences are reset when you 
 $string['cannotaddassignment']  = 'Unable to add assignment.';
 $string['alltickets']           = 'All Questions';
 $string['reportedby']           = 'Questions reported by user';
-$string['newtickets']           = 'New Questions';
 $string['assignedto']           = 'Questions assigned to user';
 $string['closedtickets']        = 'Closed Questions';
 $string['hiddentickets']        = 'Hidden Questions';
@@ -225,6 +224,11 @@ $string['showfirstcontact']     = 'Show First Contact';
 $string['showfirstcontactdesc'] = 'Displays the first helper that replied to the question when viewing the ticket.';
 $string['authcontextid']        = 'Authorization Context ID';
 $string['authcontextiddesc']    = 'Course number the Help Desk will use for determining access rights (1 = SYSTEM_CONTEXT)';
+$string['newticket_created']    = 'A new helpdesk ticket has been created.';
+$string['newticket_id']    = 'Ticket ID: ';
+$string['newticket_summary']    = 'Ticket Summary: ';
+$string['newticket_detail']    = 'Ticket Detail: ';
+$string['newticket_link']    = 'Link to new ticket: ';
 
 // Email defaults
 $string['emaildefaultmsgtext']  = <<<EOF
