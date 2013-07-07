@@ -1183,5 +1183,3 @@ function get_site_admins() {
     $siteadmins = $DB->get_records_select('user', $wherecondition);
     return $siteadmins;
 }
-
-?>
