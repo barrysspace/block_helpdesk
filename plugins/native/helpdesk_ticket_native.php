@@ -53,6 +53,9 @@ class helpdesk_ticket_native extends helpdesk_ticket {
         $tags       = array();
         $updates    = array();
         $users      = array();
+        $tags = array();
+        $updates = array();
+        $users = array();
     }
 
     /**
@@ -477,6 +480,15 @@ class helpdesk_ticket_native extends helpdesk_ticket {
     function set_timemodified() {
         $this->timemodified = time();
         return true;
+    }
+
+    /**
+     * Get method that returns an idstring.
+     *
+     * @return string
+     */
+    function get_real_id() {
+        return $this->id;
     }
 
     /**
@@ -1246,4 +1258,37 @@ class helpdesk_ticket_native extends helpdesk_ticket {
         }
         return false;
     }
+}
+
+function send_admin_emails($data, $id, $real_id) {
+    global $CFG;
+
+    $bodyhtml = '';
+    $bodyhtml .= get_string('newticket_id', 'block_helpdesk') . 'HD-'. $id . '<br/><p>';
+    $bodyhtml .= get_string('newticket_summary', 'block_helpdesk') . '<br/>' . $data->summary . '<br/></p><p>';
+    $bodyhtml .= get_string('newticket_detail', 'block_helpdesk') . '<br/>' . $data->detail . '<br/></p>';
+    $bodyhtml .= get_string('newticket_link', 'block_helpdesk') . '<br/><a '.$CFG->wwwroot . '/blocks/helpdesk/view.php?id='.$real_id . '>'.$CFG->wwwroot . '/blocks/helpdesk/view.php?id='.$real_id .'</a><br/></p>';
+
+    $body = '';
+    $body .= get_string('newticket_id', 'block_helpdesk') . 'HD-'.$id . ' - ';
+    $body .= get_string('newticket_summary', 'block_helpdesk') . ' - ' . $data->summary . ' - ';
+    $body .= get_string('newticket_detail', 'block_helpdesk') . ' - ' . $data->detail . ' - ';
+    $body .= get_string('newticket_link', 'block_helpdesk') . ' - '.$CFG->wwwroot .'/blocks/helpdesk/view.php?id='. $real_id . ' - ';
+
+    $subject = '';
+    $subject .= get_string('newticket_created', 'block_helpdesk') . get_string('newticket_id', 'block_helpdesk'). 'HD-'. $id;
+
+    if ($admins = get_site_admins()) {
+        foreach ($admins as $admin) {
+            email_to_user($admin, '', $subject, $body, $bodyhtml);
+        }
+    }
+}
+
+function get_site_admins() {
+    global $DB, $CFG;
+
+    $wherecondition = "id IN ($CFG->siteadmins)";
+    $siteadmins = $DB->get_records_select('user', $wherecondition);
+    return $siteadmins;
 }

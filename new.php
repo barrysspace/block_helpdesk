@@ -90,6 +90,8 @@ if (!$ticket->store()) {
     error(get_string('unabletostoreticket', 'block_helpdesk'));
 }
 $id = $ticket->get_idstring();
+$real_id = $ticket->get_real_id();
+$email_admins = send_admin_emails($data, $id, $real_id);
 
 if (!empty($data->tags)) {
     $taglist = array();

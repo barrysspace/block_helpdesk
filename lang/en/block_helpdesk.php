@@ -274,3 +274,9 @@ $string['update']                   = 'Question Updates';
 $string['update_help']              = 'Updates reflect communication from any user who is working on a given question. Updates can reflect changes in a question as well as system updates if a user has setup their preferences to view these, they are disabled by default.';
 $string['grab']                     = 'Grab Question';
 $string['grab_help']                = 'As an answerer, you have the ability to take over a question if no one has touched it yet. This makes you the first contact (if enabled by your administrator,) and assigns you to the question.';
+$string['newticket_created']    = 'A new helpdesk ticket has been created.';
+$string['newticket_id']    = 'Ticket ID: ';
+$string['newticket_summary']    = 'Ticket Summary: ';
+$string['newticket_detail']    = 'Ticket Detail: ';
+$string['newticket_link']    = 'Link to new ticket: ';
+ 
