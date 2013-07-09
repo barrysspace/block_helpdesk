@@ -231,6 +231,5 @@ function xmldb_block_helpdesk_upgrade($oldversion = 0) {
         // helpdesk savepoint reached
         upgrade_block_savepoint(true, 2013022800, 'helpdesk');
     }
-
     return $result;
 }

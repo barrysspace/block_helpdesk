@@ -87,7 +87,7 @@ function print_table_head($string, $width='95%') {
  * @return bool
  */
 function helpdesk_is_capable($capability=null, $require=false, $user=null) {
-    global $DB;
+    global $DB, $COURSE;
     if (empty($user)) {
         global $USER;
         $user = $USER;
@@ -97,7 +97,12 @@ function helpdesk_is_capable($capability=null, $require=false, $user=null) {
 	$user = $DB->get_record('user', array('id' => $user));
     }
 
-    $context = get_context_instance(CONTEXT_SYSTEM);
+    $context_id = $COURSE->id;
+    if (!empty($context_id) && is_numeric($context_id))
+	$context = get_context_instance(CONTEXT_COURSE, $context_id);
+    else
+	$context = get_context_instance(CONTEXT_SYSTEM);
+
     if (empty($capability)) {
         // When returning which capability applies for the user, we can't
         // require this. The type that is returned is *mixed*.
@@ -106,8 +111,8 @@ function helpdesk_is_capable($capability=null, $require=false, $user=null) {
             notify(get_string('warning_getandrequire', 'block_helpdesk'));
         }
 
-	// Order here does matter.
-	$rval = false;
+        // Order here does matter.
+        $rval = false;
         $cap = has_capability(HELPDESK_CAP_ASK, $context, $user->id);
         if ($cap) {
             $rval = HELPDESK_CAP_ASK;
